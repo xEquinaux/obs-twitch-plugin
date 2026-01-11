@@ -16,10 +16,16 @@ target_include_directories(obs-twitch-chat PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/i
 
 # Find FreeType for text rendering
 find_package(Freetype REQUIRED)
+find_package(CURL REQUIRED)
 if(FREETYPE_FOUND)
     message(STATUS "Found FreeType: ${FREETYPE_INCLUDE_DIRS}")
     target_include_directories(obs-twitch-chat PRIVATE ${FREETYPE_INCLUDE_DIRS})
     target_link_libraries(obs-twitch-chat PRIVATE ${FREETYPE_LIBRARIES})
+endif()
+if(CURL_FOUND)
+    message(STATUS "Found CURL: ${CURL_LIBRARIES}")
+    target_include_directories(obs-twitch-chat PRIVATE ${CURL_INCLUDE_DIRS})
+    target_link_libraries(obs-twitch-chat PRIVATE ${CURL_LIBRARIES})
 endif()
 
 # Link flags and OBS-specific linking will vary by environment. You may need to

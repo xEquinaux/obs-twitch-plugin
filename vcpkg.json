@@ -5,6 +5,7 @@
     "websocketpp",
     "openssl",
     "freetype",
-    "fmt"
+    "fmt",
+    "curl"
   ]
 }

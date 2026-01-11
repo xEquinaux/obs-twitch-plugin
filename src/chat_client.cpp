@@ -55,6 +55,9 @@ public:
             fprintf(stderr, "[chatclient] connection opened\n");
             connected_ = true;
             this->conn_hdl_ = hdl;
+            // Request tags and commands capabilities so we get emote tags
+            std::string cap = "CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership";
+            client_.send(hdl, cap, websocketpp::frame::opcode::text);
             // Send PASS and NICK and JOIN
             std::string pass = "PASS " + token_;
             std::string nick = "NICK twitchbot"; // nickname isn't important for Twitch bots
