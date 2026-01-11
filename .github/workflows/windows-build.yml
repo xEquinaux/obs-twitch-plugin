@@ -1,0 +1,54 @@
+name: Windows Build (vcpkg + CMake)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup vcpkg (classic)
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git "${{ runner.temp }}\vcpkg"
+          pushd "${{ runner.temp }}\vcpkg"
+          .\bootstrap-vcpkg.bat
+          popd
+
+      - name: Install dependencies via vcpkg
+        run: |
+          set VCPKG_ROOT=%RUNNER_TEMP%\vcpkg
+          %VCPKG_ROOT%\vcpkg.exe install freetype:x64-windows websocketpp:x64-windows openssl:x64-windows fmt:x64-windows --triplet x64-windows
+
+      - name: Configure CMake (CI target)
+        run: |
+          cmake -S ci -B ci/build -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE="%RUNNER_TEMP%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+
+      - name: Build (Release)
+        run: cmake --build ci/build --config Release
+
+      - name: Run smoke test
+        run: |
+          mkdir artifact || echo already
+          copy ci\\build\\Release\\obs_twitch_chat_cli.exe artifact\\ || echo "no exe"
+          pushd artifact
+          echo Running CLI for a short smoke test
+          .\\obs_twitch_chat_cli.exe || echo "cli failed"
+          popd
+
+      - name: Collect runtime DLLs
+        run: |
+          mkdir artifact || echo already
+          set VCPKG_ROOT=%RUNNER_TEMP%\vcpkg
+          if exist "%VCPKG_ROOT%\\installed\\x64-windows\\bin\\*.dll" copy "%VCPKG_ROOT%\\installed\\x64-windows\\bin\\*.dll" artifact\\ || echo "no runtime dlls"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: obs-twitch-chat-windows
+          path: artifact

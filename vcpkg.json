@@ -1,0 +1,10 @@
+{
+  "name": "obs-twitch-chat",
+  "version": "0.1.0",
+  "dependencies": [
+    "websocketpp",
+    "openssl",
+    "freetype",
+    "fmt"
+  ]
+}
