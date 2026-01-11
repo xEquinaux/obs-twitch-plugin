@@ -20,10 +20,10 @@ jobs:
           .\bootstrap-vcpkg.bat
           popd
 
-      - name: Install dependencies via vcpkg
+      - name: Install dependencies via vcpkg (PowerShell)
         run: |
-          set VCPKG_ROOT=%RUNNER_TEMP%\vcpkg
-          %VCPKG_ROOT%\vcpkg.exe install freetype:x64-windows websocketpp:x64-windows openssl:x64-windows fmt:x64-windows --triplet x64-windows
+          $env:VCPKG_ROOT = Join-Path $env:RUNNER_TEMP 'vcpkg'
+          & "$env:VCPKG_ROOT\vcpkg.exe" install freetype:x64-windows websocketpp:x64-windows openssl:x64-windows fmt:x64-windows
 
       - name: Configure CMake (CI target)
         run: |
